@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="CoinWake">
+  <title>CoinWake</title>
+  <!--
+    The editable source for the PWA icons: an alarm clock whose face holds a
+    rising arrow — the alert and the target it is watching for.
+
+    Colours are the app's own tokens from src/styles.css, converted to sRGB:
+      #567bf7 = --primary  oklch(0.62 0.19 268)
+      #7347af = --accent   oklch(0.50 0.16 300)
+
+    public/icon-192.png, icon-512.png, icon-maskable-512.png and
+    apple-touch-icon.png are rasterisations of this geometry. Change this file and
+    the PNGs must be regenerated to match — the maskable variants drop the rounded
+    corners (the launcher supplies its own mask) and shrink the glyph to 0.74 so it
+    clears the inner 80% safe circle.
+  -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#567bf7"/>
+      <stop offset="1" stop-color="#7347af"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="115.2" fill="url(#bg)"/>
+
+  <g transform="translate(256 256) scale(0.94) translate(-256 -256)"
+     fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round">
+    <!-- clock rim -->
+    <circle cx="256" cy="279.04" r="153.6" stroke-width="28.16"/>
+    <!-- bell caps -->
+    <circle cx="147.4" cy="170.44" r="41.98" fill="#fff" stroke="none"/>
+    <circle cx="364.6" cy="170.44" r="41.98" fill="#fff" stroke="none"/>
+    <!-- feet -->
+    <path d="M153.6 387.58 L125.44 435.2" stroke-width="36.86"/>
+    <path d="M358.4 387.58 L386.56 435.2" stroke-width="36.86"/>
+    <!-- rising arrow -->
+    <path d="M256 366.08 V202.24" stroke-width="26.62"/>
+    <path d="M186.88 272.9 L256 203.78 L325.12 272.9" stroke-width="26.62"/>
+  </g>
+</svg>

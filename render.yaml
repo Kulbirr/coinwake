@@ -1,0 +1,85 @@
+# Render.com Infrastructure as Code
+# Deploy: push to GitHub → connect repo in Render → auto-deploys
+
+services:
+  # Backend API Service
+  - type: web
+    name: coinwake-api
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: cd Downloads/Compressed/crypto-wake-up-call-main/server && npm install --include=dev && npm run build
+    startCommand: cd Downloads/Compressed/crypto-wake-up-call-main/server && npm run start
+    healthCheckPath: /api/healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+        # Set in Render dashboard: mongodb+srv://user:pass@cluster.mongodb.net/coinwake
+      - key: JWT_ACCESS_SECRET
+        sync: false
+        # Generate: openssl rand -base64 32
+      - key: JWT_REFRESH_SECRET
+        sync: false
+        # Generate: openssl rand -base64 32
+      - key: JWT_ACCESS_TTL
+        value: 15m
+      - key: JWT_REFRESH_TTL
+        value: 7d
+      - key: CRYPTO_PROVIDER
+        value: coingecko
+      - key: COINGECKO_BASE_URL
+        value: https://api.coingecko.com/api/v3
+      - key: COINGECKO_API_KEY
+        sync: false
+        # Optional: CoinGecko Pro key
+      - key: PRICE_POLL_INTERVAL_MS
+        value: "20000"
+      - key: CACHE_TTL_PRICE
+        value: "20"
+      - key: CACHE_TTL_MARKET
+        value: "60"
+      - key: CACHE_TTL_METADATA
+        value: "86400"
+      - key: CACHE_TTL_CHART
+        value: "900"
+      - key: WALLET_PROVIDER
+        value: mock
+      - key: SOLANA_RPC_URL
+        value: https://api.mainnet-beta.solana.com
+      - key: EVM_RPC_URL
+        value: https://eth.llamarpc.com
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+        # Generate: npx web-push generate-vapid-keys
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        value: mailto:alerts@coinwake.app
+      - key: CORS_ORIGIN
+        value: https://coinwake.app,https://coinwake-web.vercel.app,capacitor://localhost,http://localhost:8080
+
+  # Frontend Static Site (optional - can also use Vercel/Netlify)
+  - type: web
+    name: coinwake-web
+    runtime: static
+    plan: free
+    region: oregon
+    buildCommand: npm install && npm run build
+    staticPublishPath: .output/public
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: https://coinwake-api.onrender.com/api
+      - key: NODE_ENV
+        value: production
+
+databases:
+  # MongoDB is external (Atlas) - not managed by Render
+  # Add your Atlas connection string to MONGODB_URI env var above

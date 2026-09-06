@@ -1,0 +1,16 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "Downloads/Compressed/crypto-wake-up-call-main/.output/public",
+  "framework": "none",
+  "functions": {
+    "app/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/__server"
+    }
+  ]
+}

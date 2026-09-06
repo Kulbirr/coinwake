@@ -1,0 +1,180 @@
+import { Link, createFileRoute } from "@tanstack/react-router";
+import { ArrowDown, ArrowUp, Bell, Search, Star } from "lucide-react";
+import { useMemo, useState } from "react";
+
+import { AppShell } from "@/components/app/AppShell";
+import { CoinLogo } from "@/components/app/CoinLogo";
+import { Delta } from "@/components/app/Delta";
+import { PriceValue } from "@/components/app/PriceValue";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useAppUi } from "@/lib/app-ui";
+import { rankCoinMatches } from "@/lib/coin-search";
+import { formatCompact, formatPrice } from "@/lib/format";
+import { useStore } from "@/lib/store";
+import { cn } from "@/lib/utils";
+
+export const Route = createFileRoute("/market")({
+  component: Market,
+});
+
+type SortKey = "rank" | "price" | "change24h" | "marketCap" | "volume24h";
+
+const COLUMNS: Array<{ key: SortKey; label: string; className?: string }> = [
+  { key: "price", label: "Price" },
+  { key: "change24h", label: "24h" },
+  { key: "marketCap", label: "Market cap" },
+  { key: "volume24h", label: "Volume" },
+];
+
+function Market() {
+  const { coins, watchlist, toggleWatchlist } = useStore();
+  const { openAlertDialog } = useAppUi();
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<SortKey>("rank");
+  const [dir, setDir] = useState<"asc" | "desc">("asc");
+
+  const rows = useMemo(() => {
+    const base = query.trim() ? rankCoinMatches(coins, query, coins.length) : coins.slice();
+    // Search already returns a relevance order; only sort the full list.
+    if (query.trim()) return base;
+    return base.sort((a, b) => {
+      const av = a[sort];
+      const bv = b[sort];
+      return dir === "asc" ? av - bv : bv - av;
+    });
+  }, [coins, query, sort, dir]);
+
+  const toggleSort = (key: SortKey) => {
+    if (sort === key) {
+      setDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSort(key);
+      // Rank reads best ascending; everything else best descending.
+      setDir(key === "rank" ? "asc" : "desc");
+    }
+  };
+
+  const SortIcon = ({ column }: { column: SortKey }) => {
+    if (sort !== column || query.trim()) return null;
+    return dir === "asc" ? <ArrowUp className="size-3" /> : <ArrowDown className="size-3" />;
+  };
+
+  return (
+    <AppShell
+      title="Market"
+      subtitle={`Live prices across ${coins.length} coins. Click a column to sort.`}
+    >
+      <div className="glass rounded-2xl p-4 md:p-5">
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search name or symbol…"
+            className="h-10 pl-9"
+          />
+        </div>
+
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full min-w-[820px] text-sm">
+            <thead>
+              <tr className="border-b border-border text-left text-xs uppercase tracking-wider text-muted-foreground">
+                <th className="py-2.5 pr-3 font-medium">
+                  <button
+                    onClick={() => toggleSort("rank")}
+                    className="flex cursor-pointer items-center gap-1 hover:text-foreground"
+                  >
+                    # Coin <SortIcon column="rank" />
+                  </button>
+                </th>
+                {COLUMNS.map((col) => (
+                  <th key={col.key} className="py-2.5 pr-3 font-medium">
+                    <button
+                      onClick={() => toggleSort(col.key)}
+                      className="flex cursor-pointer items-center gap-1 hover:text-foreground"
+                    >
+                      {col.label} <SortIcon column={col.key} />
+                    </button>
+                  </th>
+                ))}
+                <th className="w-24 py-2.5" />
+              </tr>
+            </thead>
+            <tbody>
+              {rows.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-muted-foreground">
+                    No coins match "{query}".
+                  </td>
+                </tr>
+              )}
+              {rows.map((coin) => {
+                const watched = watchlist.includes(coin.id);
+                return (
+                  <tr
+                    key={coin.id}
+                    className="border-b border-border/60 transition-colors hover:bg-surface/50"
+                  >
+                    <td className="py-3 pr-3">
+                      <Link
+                        to="/coin/$coinId"
+                        params={{ coinId: coin.id }}
+                        className="flex items-center gap-2.5 hover:text-primary"
+                      >
+                        <span className="num w-5 text-xs text-muted-foreground">{coin.rank}</span>
+                        <CoinLogo coin={coin} size={30} />
+                        <span>
+                          <span className="block font-medium">{coin.symbol}</span>
+                          <span className="block text-xs text-muted-foreground">{coin.name}</span>
+                        </span>
+                      </Link>
+                    </td>
+                    <td className="py-3 pr-3">
+                      <PriceValue value={coin.price} className="text-sm font-medium" />
+                    </td>
+                    <td className="py-3 pr-3">
+                      <Delta value={coin.change24h} arrow={false} />
+                    </td>
+                    <td className="num py-3 pr-3 text-muted-foreground">
+                      {formatCompact(coin.marketCap)}
+                    </td>
+                    <td className="num py-3 pr-3 text-muted-foreground">
+                      {formatCompact(coin.volume24h)}
+                    </td>
+                    <td className="py-3">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-8"
+                          aria-label={`Set alert for ${coin.symbol}`}
+                          onClick={() => openAlertDialog({ coin })}
+                        >
+                          <Bell className="size-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className={cn("size-8", watched ? "text-warn" : "text-muted-foreground")}
+                          aria-label={
+                            watched
+                              ? `Remove ${coin.symbol} from watchlist`
+                              : `Watch ${coin.symbol}`
+                          }
+                          onClick={() => toggleWatchlist(coin.id)}
+                        >
+                          <Star className={cn("size-4", watched && "fill-warn")} />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </AppShell>
+  );
+}
