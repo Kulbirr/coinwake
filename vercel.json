@@ -1,10 +1,5 @@
 {
   "buildCommand": "npm run build",
-  "functions": {
-    "app/**/*.ts": {
-      "maxDuration": 30
-    }
-  },
   "rewrites": [
     {
       "source": "/(.*)",
