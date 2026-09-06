@@ -1,6 +1,6 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": ".vercel/output/static",
+  "outputDirectory": ".output/public",
   "functions": {
     "app/**/*.ts": {
       "maxDuration": 30
