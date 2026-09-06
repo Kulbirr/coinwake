@@ -35,6 +35,7 @@ const baseSchema = z.object({
   repeat: z.enum(["ONCE", "RECURRING"]).default("ONCE"),
   cooldownMinutes: z.number().int().min(0).max(1440).default(5),
   notify: notifySchema,
+  sound: z.enum(["default", "gentle", "urgent", "retro", "chill", "loud"]).default("default"),
 });
 
 const createSchema = z.discriminatedUnion("kind", [

@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, Bell } from "lucide-react";
+import { ArrowDown, ArrowUp, Bell, Volume2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -62,6 +62,7 @@ export function CreateAlertDialog({
   const [repeat, setRepeat] = useState<"ONCE" | "RECURRING">("ONCE");
   const [cooldown, setCooldown] = useState("5");
   const [notify, setNotify] = useState({ browser: true, alarm: true, push: false });
+  const [sound, setSound] = useState<"default" | "gentle" | "urgent" | "retro" | "chill" | "loud">("default");
   const [saving, setSaving] = useState(false);
 
   const coin = useMemo(() => coins.find((c) => c.id === coinId), [coins, coinId]);
@@ -126,6 +127,11 @@ export function CreateAlertDialog({
         : mode === "PERCENT"
           ? { ...shared, kind: "PERCENT", targetPercent: Number(percentTarget) }
           : { ...shared, kind: "PRICE", targetPrice: Number(target) };
+
+    // Include sound for alarm notifications
+    if (notify.alarm) {
+      (input as any).sound = sound;
+    }
 
     setSaving(true);
     const saved = await addAlert(input);
@@ -344,6 +350,38 @@ export function CreateAlertDialog({
                   {label}
                 </label>
               ))}
+            </div>
+
+            <div className="space-y-2 rounded-xl border border-border bg-surface/50 p-3">
+              <Label className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
+                <Volume2 className="size-4" />
+                Alarm sound
+              </Label>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                {(
+                  [
+                    { value: "default", label: "Default" },
+                    { value: "gentle", label: "Gentle" },
+                    { value: "urgent", label: "Urgent" },
+                    { value: "retro", label: "Retro" },
+                    { value: "chill", label: "Chill" },
+                    { value: "loud", label: "Loud" },
+                  ] as const
+                ).map(({ value, label }) => (
+                  <button
+                    key={value}
+                    onClick={() => setSound(value)}
+                    className={cn(
+                      "flex cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium transition-all",
+                      sound === value
+                        ? "border-primary/50 bg-primary/12 text-primary"
+                        : "border-input text-muted-foreground hover:bg-surface",
+                    )}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 

@@ -223,6 +223,7 @@ interface AlertBase {
   repeat?: AlertRepeat;
   cooldownMinutes?: number;
   notify?: Partial<AlertNotifyChannels>;
+  sound?: "default" | "gentle" | "urgent" | "retro" | "chill" | "loud";
 }
 
 export type AlertInput =
@@ -241,6 +242,7 @@ export interface AlertPatch {
   repeat?: AlertRepeat;
   cooldownMinutes?: number;
   notify?: Partial<AlertNotifyChannels>;
+  sound?: "default" | "gentle" | "urgent" | "retro" | "chill" | "loud";
 }
 
 export type HistoryWindow = "today" | "7d" | "30d" | "all";

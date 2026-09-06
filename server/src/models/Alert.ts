@@ -30,6 +30,7 @@ export interface AlertDoc {
   cooldownUntil?: Date;
   baselinePrice?: number;
   baselineValue?: number;
+  sound?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -70,6 +71,7 @@ const alertSchema = new Schema<AlertDoc>(
     cooldownUntil: { type: Date },
     baselinePrice: { type: Number },
     baselineValue: { type: Number },
+    sound: { type: String, enum: ["default", "gentle", "urgent", "retro", "chill", "loud"], default: "default" },
   },
   { timestamps: true },
 );
@@ -104,5 +106,6 @@ export function toAlert(doc: AlertDocument): Alert {
     triggerCount: doc.triggerCount,
     ...(doc.baselinePrice !== undefined ? { baselinePrice: doc.baselinePrice } : {}),
     ...(doc.baselineValue !== undefined ? { baselineValue: doc.baselineValue } : {}),
+    ...(doc.sound ? { sound: doc.sound } : { sound: "default" }),
   };
 }

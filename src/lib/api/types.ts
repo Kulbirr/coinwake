@@ -118,6 +118,8 @@ export interface Alert {
   /** Snapshot when the alert was armed — the denominator for progress. */
   baselinePrice?: number;
   baselineValue?: number;
+  /** Custom alarm sound. */
+  sound?: string;
 }
 
 export interface AlertProgress {
