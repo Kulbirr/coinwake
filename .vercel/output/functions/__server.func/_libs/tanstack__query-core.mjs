@@ -51,7 +51,7 @@ function systemSetTimeoutZero(callback) {
 /** @deprecated
 * use `environmentManager.isServer()` instead.
 */
-var isServer = typeof window === "undefined" || "Deno" in globalThis;
+var isServer$1 = typeof window === "undefined" || "Deno" in globalThis;
 function noop() {}
 function functionalUpdate(updater, input) {
 	return typeof updater === "function" ? updater(input) : updater;
@@ -62,11 +62,8 @@ function isValidTimeout(value) {
 function timeUntilStale(updatedAt, staleTime) {
 	return Math.max(updatedAt + (staleTime || 0) - Date.now(), 0);
 }
-function resolveStaleTime(staleTime, query) {
-	return typeof staleTime === "function" ? staleTime(query) : staleTime;
-}
-function resolveQueryBoolean(option, query) {
-	return typeof option === "function" ? option(query) : option;
+function resolveQueryValue(value, query) {
+	return typeof value === "function" ? value(query) : value;
 }
 function matchQuery(filters, query) {
 	const { type = "all", exact, fetchStatus, predicate, queryKey, stale } = filters;
@@ -227,26 +224,11 @@ function addConsumeAwareSignal(object, getSignal, onCancelled) {
 }
 //#endregion
 //#region node_modules/@tanstack/query-core/build/modern/environmentManager.js
+var isServerFn = () => isServer$1;
 /**
-* Manages environment detection used by TanStack Query internals.
+* Returns whether the current runtime should be treated as a server environment.
 */
-var environmentManager = (() => {
-	let isServerFn = () => isServer;
-	return {
-		/**
-		* Returns whether the current runtime should be treated as a server environment.
-		*/
-		isServer() {
-			return isServerFn();
-		},
-		/**
-		* Overrides the server check globally.
-		*/
-		setIsServer(isServerValue) {
-			isServerFn = isServerValue;
-		}
-	};
-})();
+var isServer = () => isServerFn();
 //#endregion
 //#region node_modules/@tanstack/query-core/build/modern/subscribable.js
 var Subscribable = class {
@@ -521,7 +503,7 @@ function createRetryer(config) {
 		}
 		Promise.resolve(promiseOrValue).then(resolve).catch((error) => {
 			if (isResolved()) return;
-			const retry = config.retry ?? (environmentManager.isServer() ? 0 : 3);
+			const retry = config.retry ?? (isServer() ? 0 : 3);
 			const retryDelay = config.retryDelay ?? defaultRetryDelay;
 			const delay = typeof retryDelay === "function" ? retryDelay(failureCount, error) : retryDelay;
 			const shouldRetry = retry === true || typeof retry === "number" && failureCount < retry || typeof retry === "function" && retry(failureCount, error);
@@ -571,7 +553,7 @@ var Removable = class {
 		}, this.gcTime);
 	}
 	updateGcTime(newGcTime) {
-		this.gcTime = Math.max(this.gcTime || 0, newGcTime ?? (environmentManager.isServer() ? Infinity : 3e5));
+		this.gcTime = Math.max(this.gcTime || 0, newGcTime ?? (isServer() ? Infinity : 3e5));
 	}
 	clearGcTimeout() {
 		if (this.#gcTimeout !== void 0) {
@@ -744,7 +726,7 @@ var Query = class extends Removable {
 		this.setState(this.resetState);
 	}
 	isActive() {
-		return this.observers.some((observer) => resolveQueryBoolean(observer.options.enabled, this) !== false);
+		return this.observers.some((observer) => resolveQueryValue(observer.options.enabled, this) !== false);
 	}
 	isDisabled() {
 		if (this.getObserversCount() > 0) return !this.isActive();
@@ -754,7 +736,7 @@ var Query = class extends Removable {
 		return this.state.dataUpdateCount + this.state.errorUpdateCount > 0;
 	}
 	isStatic() {
-		if (this.getObserversCount() > 0) return this.observers.some((observer) => resolveStaleTime(observer.options.staleTime, this) === "static");
+		if (this.getObserversCount() > 0) return this.observers.some((observer) => resolveQueryValue(observer.options.staleTime, this) === "static");
 		return false;
 	}
 	isStale() {
@@ -791,7 +773,7 @@ var Query = class extends Removable {
 		if (index !== -1) {
 			this.observers.splice(index, 1);
 			if (!this.observers.length) {
-				if (this.#retryer) if (this.#abortSignalConsumed || this.#isInitialPausedFetch()) this.#retryer.cancel({ revert: true });
+				if (this.#retryer) if (this.#abortSignalConsumed || this.state.fetchStatus === "paused" && this.state.status === "pending") this.#retryer.cancel({ revert: true });
 				else this.#retryer.cancelRetry();
 				this.scheduleGc();
 			}
@@ -804,9 +786,6 @@ var Query = class extends Removable {
 	}
 	getObserversCount() {
 		return this.observers.length;
-	}
-	#isInitialPausedFetch() {
-		return this.state.fetchStatus === "paused" && this.state.status === "pending";
 	}
 	invalidate() {
 		if (!this.state.isInvalidated) this.#dispatch({ type: "invalidate" });
@@ -1088,7 +1067,7 @@ var QueryObserver = class extends Subscribable {
 		const prevOptions = this.options;
 		const prevQuery = this.#currentQuery;
 		this.options = this.#client.defaultQueryOptions(options);
-		if (this.options.enabled !== void 0 && typeof this.options.enabled !== "boolean" && typeof this.options.enabled !== "function" && typeof resolveQueryBoolean(this.options.enabled, this.#currentQuery) !== "boolean") throw new Error("Expected enabled to be a boolean or a callback that returns a boolean");
+		if (this.options.enabled !== void 0 && typeof this.options.enabled !== "boolean" && typeof this.options.enabled !== "function" && typeof resolveQueryValue(this.options.enabled, this.#currentQuery) !== "boolean") throw new Error("Expected enabled to be a boolean or a callback that returns a boolean");
 		this.#updateQuery();
 		this.#currentQuery.setOptions(this.options);
 		if (prevOptions._defaulted && !shallowEqualObjects(this.options, prevOptions)) this.#client.getQueryCache().notify({
@@ -1099,14 +1078,14 @@ var QueryObserver = class extends Subscribable {
 		const mounted = this.hasListeners();
 		if (mounted && shouldFetchOptionally(this.#currentQuery, prevQuery, this.options, prevOptions)) this.#executeFetch();
 		this.updateResult();
-		if (mounted && (this.#currentQuery !== prevQuery || resolveQueryBoolean(this.options.enabled, this.#currentQuery) !== resolveQueryBoolean(prevOptions.enabled, this.#currentQuery) || resolveStaleTime(this.options.staleTime, this.#currentQuery) !== resolveStaleTime(prevOptions.staleTime, this.#currentQuery))) this.#updateStaleTimeout();
+		if (mounted && (this.#currentQuery !== prevQuery || resolveQueryValue(this.options.enabled, this.#currentQuery) !== resolveQueryValue(prevOptions.enabled, this.#currentQuery) || resolveQueryValue(this.options.staleTime, this.#currentQuery) !== resolveQueryValue(prevOptions.staleTime, this.#currentQuery))) this.#updateStaleTimeout();
 		const nextRefetchInterval = this.#computeRefetchInterval();
-		if (mounted && (this.#currentQuery !== prevQuery || resolveQueryBoolean(this.options.enabled, this.#currentQuery) !== resolveQueryBoolean(prevOptions.enabled, this.#currentQuery) || nextRefetchInterval !== this.#currentRefetchInterval)) this.#updateRefetchInterval(nextRefetchInterval);
+		if (mounted && (this.#currentQuery !== prevQuery || resolveQueryValue(this.options.enabled, this.#currentQuery) !== resolveQueryValue(prevOptions.enabled, this.#currentQuery) || nextRefetchInterval !== this.#currentRefetchInterval)) this.#updateRefetchInterval(nextRefetchInterval);
 	}
 	getOptimisticResult(options) {
 		const query = this.#client.getQueryCache().build(this.#client, options);
 		const result = this.createResult(query, options);
-		if (shouldAssignObserverCurrentProperties(this, result)) {
+		if (!shallowEqualObjects(this.getCurrentResult(), result)) {
 			this.#currentResult = result;
 			this.#currentResultOptions = this.options;
 			this.#currentResultState = this.#currentQuery.state;
@@ -1169,10 +1148,13 @@ var QueryObserver = class extends Subscribable {
 		if (!fetchOptions?.throwOnError) promise = promise.catch(noop);
 		return promise;
 	}
+	#shouldScheduleTimer(timeout) {
+		return !isServer() && resolveQueryValue(this.options.enabled, this.#currentQuery) !== false && isValidTimeout(timeout);
+	}
 	#updateStaleTimeout() {
 		this.#clearStaleTimeout();
-		const staleTime = resolveStaleTime(this.options.staleTime, this.#currentQuery);
-		if (environmentManager.isServer() || this.#currentResult.isStale || !isValidTimeout(staleTime)) return;
+		const staleTime = resolveQueryValue(this.options.staleTime, this.#currentQuery);
+		if (this.#currentResult.isStale || !this.#shouldScheduleTimer(staleTime)) return;
 		const timeout = timeUntilStale(this.#currentResult.dataUpdatedAt, staleTime) + 1;
 		this.#staleTimeoutId = timeoutManager.setTimeout(() => {
 			if (!this.#currentResult.isStale) this.updateResult();
@@ -1184,7 +1166,7 @@ var QueryObserver = class extends Subscribable {
 	#updateRefetchInterval(nextInterval) {
 		this.#clearRefetchInterval();
 		this.#currentRefetchInterval = nextInterval;
-		if (environmentManager.isServer() || resolveQueryBoolean(this.options.enabled, this.#currentQuery) === false || !isValidTimeout(this.#currentRefetchInterval) || this.#currentRefetchInterval === 0) return;
+		if (this.#currentRefetchInterval === 0 || !this.#shouldScheduleTimer(this.#currentRefetchInterval)) return;
 		this.#refetchIntervalId = timeoutManager.setInterval(() => {
 			if (this.options.refetchIntervalInBackground || focusManager.isFocused()) this.#executeFetch();
 		}, this.#currentRefetchInterval);
@@ -1289,7 +1271,7 @@ var QueryObserver = class extends Subscribable {
 			isRefetchError: isError && hasData,
 			isStale: isStale(query, options),
 			refetch: this.refetch,
-			isEnabled: resolveQueryBoolean(options.enabled, query) !== false
+			isEnabled: resolveQueryValue(options.enabled, query) !== false
 		};
 	}
 	updateResult() {
@@ -1312,7 +1294,16 @@ var QueryObserver = class extends Subscribable {
 				return this.#currentResult[typedKey] !== prevResult[typedKey] && includedProps.has(typedKey);
 			});
 		};
-		this.#notify({ listeners: shouldNotifyListeners() });
+		const notifyListeners = shouldNotifyListeners();
+		notifyManager.batch(() => {
+			if (notifyListeners) this.listeners.forEach((listener) => {
+				listener(this.#currentResult);
+			});
+			this.#client.getQueryCache().notify({
+				query: this.#currentQuery,
+				type: "observerResultsUpdated"
+			});
+		});
 	}
 	#updateQuery() {
 		const query = this.#client.getQueryCache().build(this.#client, this.options);
@@ -1329,40 +1320,25 @@ var QueryObserver = class extends Subscribable {
 		this.updateResult();
 		if (this.hasListeners()) this.#updateTimers();
 	}
-	#notify(notifyOptions) {
-		notifyManager.batch(() => {
-			if (notifyOptions.listeners) this.listeners.forEach((listener) => {
-				listener(this.#currentResult);
-			});
-			this.#client.getQueryCache().notify({
-				query: this.#currentQuery,
-				type: "observerResultsUpdated"
-			});
-		});
-	}
 };
 function shouldLoadOnMount(query, options) {
-	return resolveQueryBoolean(options.enabled, query) !== false && query.state.data === void 0 && !(query.state.status === "error" && resolveQueryBoolean(options.retryOnMount, query) === false);
+	return resolveQueryValue(options.enabled, query) !== false && query.state.data === void 0 && !(query.state.status === "error" && resolveQueryValue(options.retryOnMount, query) === false);
 }
 function shouldFetchOnMount(query, options) {
 	return shouldLoadOnMount(query, options) || query.state.data !== void 0 && shouldFetchOn(query, options, options.refetchOnMount);
 }
 function shouldFetchOn(query, options, field) {
-	if (resolveQueryBoolean(options.enabled, query) !== false && resolveStaleTime(options.staleTime, query) !== "static") {
+	if (resolveQueryValue(options.enabled, query) !== false && resolveQueryValue(options.staleTime, query) !== "static") {
 		const value = typeof field === "function" ? field(query) : field;
 		return value === "always" || value !== false && isStale(query, options);
 	}
 	return false;
 }
 function shouldFetchOptionally(query, prevQuery, options, prevOptions) {
-	return (query !== prevQuery || resolveQueryBoolean(prevOptions.enabled, query) === false) && (!options.suspense || query.state.status !== "error") && isStale(query, options);
+	return (query !== prevQuery || resolveQueryValue(prevOptions.enabled, query) === false) && (!options.suspense || query.state.status !== "error") && isStale(query, options);
 }
 function isStale(query, options) {
-	return resolveQueryBoolean(options.enabled, query) !== false && query.isStaleByTime(resolveStaleTime(options.staleTime, query));
-}
-function shouldAssignObserverCurrentProperties(observer, optimisticResult) {
-	if (!shallowEqualObjects(observer.getCurrentResult(), optimisticResult)) return true;
-	return false;
+	return resolveQueryValue(options.enabled, query) !== false && query.isStaleByTime(resolveQueryValue(options.staleTime, query));
 }
 //#endregion
 //#region node_modules/@tanstack/query-core/build/modern/mutation.js
@@ -1852,7 +1828,7 @@ var QueryClient = class {
 		const query = this.#queryCache.build(this, defaultedOptions);
 		const cachedData = query.state.data;
 		if (cachedData === void 0) return this.fetchQuery(options);
-		if (options.revalidateIfStale && query.isStaleByTime(resolveStaleTime(defaultedOptions.staleTime, query))) this.prefetchQuery(defaultedOptions);
+		if (options.revalidateIfStale && query.isStaleByTime(resolveQueryValue(defaultedOptions.staleTime, query))) this.prefetchQuery(defaultedOptions);
 		return Promise.resolve(cachedData);
 	}
 	getQueriesData(filters) {
@@ -1935,7 +1911,7 @@ var QueryClient = class {
 		const defaultedOptions = this.defaultQueryOptions(options);
 		if (defaultedOptions.retry === void 0) defaultedOptions.retry = false;
 		const query = this.#queryCache.build(this, defaultedOptions);
-		const queryData = query.isStaleByTime(resolveStaleTime(defaultedOptions.staleTime, query)) ? await query.fetch(defaultedOptions) : query.state.data;
+		const queryData = query.isStaleByTime(resolveQueryValue(defaultedOptions.staleTime, query)) ? await query.fetch(defaultedOptions) : query.state.data;
 		const select = defaultedOptions.select;
 		if (select) return select(queryData);
 		return queryData;
@@ -1947,7 +1923,7 @@ var QueryClient = class {
 		const defaultedOptions = this.defaultQueryOptions(options);
 		if (defaultedOptions.retry === void 0) defaultedOptions.retry = false;
 		const query = this.#queryCache.build(this, defaultedOptions);
-		return query.isStaleByTime(resolveStaleTime(defaultedOptions.staleTime, query)) ? query.fetch(defaultedOptions) : Promise.resolve(query.state.data);
+		return query.isStaleByTime(resolveQueryValue(defaultedOptions.staleTime, query)) ? query.fetch(defaultedOptions) : Promise.resolve(query.state.data);
 	}
 	/**
 	* @deprecated Use queryClient.query(options) instead. You can swallow errors with `.catch(noop)`. This method will be removed in the next major version.

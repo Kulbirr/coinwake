@@ -1,0 +1,186 @@
+//#region node_modules/.nitro/vite/services/ssr/assets/_tanstack-start-manifest_v-BCVn4Co0.js
+var tsrStartManifest = () => ({ routes: {
+	__root__: {
+		filePath: "C:/Users/kulbi/Downloads/Compressed/coinwake-repo/src/routes/__root.tsx",
+		children: [
+			"/",
+			"/alerts",
+			"/calculator",
+			"/dashboard",
+			"/login",
+			"/market",
+			"/notifications",
+			"/portfolio",
+			"/settings",
+			"/watchlist",
+			"/coin/$coinId"
+		],
+		preloads: [
+			"/assets/index-Bl_MsL4X.js",
+			"/assets/theme-DImzXVEb.js",
+			"/assets/preload-helper-Cax4K-x1.js",
+			"/assets/app-ui-B8phs-mo.js",
+			"/assets/calculator-pjt0eart.js",
+			"/assets/portfolio-Zx-ZUSd_.js",
+			"/assets/coin._coinId-ChKtuEme.js"
+		],
+		scripts: [{ attrs: {
+			type: "module",
+			async: !0,
+			src: "/assets/index-Bl_MsL4X.js"
+		} }]
+	},
+	"/": {
+		filePath: "C:/Users/kulbi/Downloads/Compressed/coinwake-repo/src/routes/index.tsx",
+		children: void 0,
+		preloads: [
+			"/assets/routes-C7bvNhYo.js",
+			"/assets/AppShell-CkW2UNAh.js",
+			"/assets/arrow-right-DYwgtyE-.js",
+			"/assets/smartphone-kBQAtvbs.js",
+			"/assets/target-D17EcrNi.js",
+			"/assets/trending-up-DPFcbL50.js",
+			"/assets/PriceChart-CJrL7y12.js",
+			"/assets/PriceValue-BGyWJa8C.js",
+			"/assets/Sparkline-DQBZuTiB.js"
+		]
+	},
+	"/alerts": {
+		filePath: "C:/Users/kulbi/Downloads/Compressed/coinwake-repo/src/routes/alerts.tsx",
+		children: void 0,
+		preloads: [
+			"/assets/alerts-D8-Nule5.js",
+			"/assets/AppShell-CkW2UNAh.js",
+			"/assets/AlertCard-CTGMisWx.js",
+			"/assets/plus-BeG09APo.js",
+			"/assets/tabs-DAiSBeCd.js"
+		]
+	},
+	"/calculator": {
+		filePath: "C:/Users/kulbi/Downloads/Compressed/coinwake-repo/src/routes/calculator.tsx",
+		children: void 0,
+		preloads: [
+			"/assets/calculator-DOpAfkvc.js",
+			"/assets/AppShell-CkW2UNAh.js",
+			"/assets/use-calculator-D0Sx3TVb.js",
+			"/assets/plus-BeG09APo.js",
+			"/assets/trash-2-CVaaEszy.js",
+			"/assets/trending-up-DPFcbL50.js",
+			"/assets/label-CWrsR1d0.js",
+			"/assets/badge-BeBHHrtl.js",
+			"/assets/tabs-DAiSBeCd.js",
+			"/assets/AreaChart-hbB0SExm.js",
+			"/assets/StatCard-BwSlznqQ.js"
+		]
+	},
+	"/dashboard": {
+		filePath: "C:/Users/kulbi/Downloads/Compressed/coinwake-repo/src/routes/dashboard.tsx",
+		children: void 0,
+		preloads: [
+			"/assets/dashboard-CyrZDH7v.js",
+			"/assets/AppShell-CkW2UNAh.js",
+			"/assets/arrow-right-DYwgtyE-.js",
+			"/assets/coins-BSHsLp54.js",
+			"/assets/use-calculator-D0Sx3TVb.js",
+			"/assets/AlertCard-CTGMisWx.js",
+			"/assets/plus-BeG09APo.js",
+			"/assets/trending-up-DPFcbL50.js",
+			"/assets/label-CWrsR1d0.js",
+			"/assets/StatCard-BwSlznqQ.js",
+			"/assets/PriceValue-BGyWJa8C.js",
+			"/assets/Sparkline-DQBZuTiB.js"
+		]
+	},
+	"/login": {
+		filePath: "C:/Users/kulbi/Downloads/Compressed/coinwake-repo/src/routes/login.tsx",
+		children: void 0,
+		preloads: [
+			"/assets/login-B6nvXOEx.js",
+			"/assets/AppShell-CkW2UNAh.js",
+			"/assets/arrow-left-BB2RQ1cR.js",
+			"/assets/arrow-right-DYwgtyE-.js",
+			"/assets/mail-e957H3xX.js",
+			"/assets/label-CWrsR1d0.js"
+		]
+	},
+	"/market": {
+		filePath: "C:/Users/kulbi/Downloads/Compressed/coinwake-repo/src/routes/market.tsx",
+		children: void 0,
+		preloads: [
+			"/assets/market-CpHmEJEU.js",
+			"/assets/AppShell-CkW2UNAh.js",
+			"/assets/star-DtNRFECK.js",
+			"/assets/label-CWrsR1d0.js",
+			"/assets/PriceValue-BGyWJa8C.js"
+		]
+	},
+	"/notifications": {
+		filePath: "C:/Users/kulbi/Downloads/Compressed/coinwake-repo/src/routes/notifications.tsx",
+		children: void 0,
+		preloads: [
+			"/assets/notifications-3AjMMGLh.js",
+			"/assets/AppShell-CkW2UNAh.js",
+			"/assets/trending-up-DPFcbL50.js",
+			"/assets/tabs-DAiSBeCd.js"
+		]
+	},
+	"/portfolio": {
+		filePath: "C:/Users/kulbi/Downloads/Compressed/coinwake-repo/src/routes/portfolio.tsx",
+		children: void 0,
+		preloads: [
+			"/assets/portfolio-C9mx54gp.js",
+			"/assets/AppShell-CkW2UNAh.js",
+			"/assets/coins-BSHsLp54.js",
+			"/assets/plus-BeG09APo.js",
+			"/assets/trash-2-CVaaEszy.js",
+			"/assets/trending-up-DPFcbL50.js",
+			"/assets/label-CWrsR1d0.js",
+			"/assets/badge-BeBHHrtl.js",
+			"/assets/StatCard-BwSlznqQ.js",
+			"/assets/PriceValue-BGyWJa8C.js",
+			"/assets/Sparkline-DQBZuTiB.js"
+		]
+	},
+	"/settings": {
+		filePath: "C:/Users/kulbi/Downloads/Compressed/coinwake-repo/src/routes/settings.tsx",
+		children: void 0,
+		preloads: [
+			"/assets/settings-CMlbs4DY.js",
+			"/assets/AppShell-CkW2UNAh.js",
+			"/assets/mail-e957H3xX.js",
+			"/assets/smartphone-kBQAtvbs.js",
+			"/assets/label-CWrsR1d0.js",
+			"/assets/badge-BeBHHrtl.js"
+		]
+	},
+	"/watchlist": {
+		filePath: "C:/Users/kulbi/Downloads/Compressed/coinwake-repo/src/routes/watchlist.tsx",
+		children: void 0,
+		preloads: [
+			"/assets/watchlist--HLo8Exl.js",
+			"/assets/AppShell-CkW2UNAh.js",
+			"/assets/plus-BeG09APo.js",
+			"/assets/star-DtNRFECK.js",
+			"/assets/target-D17EcrNi.js",
+			"/assets/PriceValue-BGyWJa8C.js",
+			"/assets/Sparkline-DQBZuTiB.js"
+		]
+	},
+	"/coin/$coinId": {
+		filePath: "C:/Users/kulbi/Downloads/Compressed/coinwake-repo/src/routes/coin.$coinId.tsx",
+		children: void 0,
+		preloads: [
+			"/assets/coin._coinId-Cj33ggmf.js",
+			"/assets/AppShell-CkW2UNAh.js",
+			"/assets/arrow-left-BB2RQ1cR.js",
+			"/assets/AlertCard-CTGMisWx.js",
+			"/assets/plus-BeG09APo.js",
+			"/assets/star-DtNRFECK.js",
+			"/assets/badge-BeBHHrtl.js",
+			"/assets/PriceChart-CJrL7y12.js",
+			"/assets/PriceValue-BGyWJa8C.js"
+		]
+	}
+} });
+//#endregion
+export { tsrStartManifest };

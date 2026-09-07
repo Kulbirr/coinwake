@@ -1,0 +1,41 @@
+{
+  "sounds": [
+    {
+      "id": "default",
+      "name": "Default",
+      "file": "default.mp3",
+      "description": "Standard alarm tone"
+    },
+    {
+      "id": "gentle",
+      "name": "Gentle",
+      "file": "gentle.mp3",
+      "description": "Soft wake-up tone"
+    },
+    {
+      "id": "urgent",
+      "name": "Urgent",
+      "file": "urgent.mp3",
+      "description": "Loud attention-grabbing tone"
+    },
+    {
+      "id": "retro",
+      "name": "Retro",
+      "file": "retro.mp3",
+      "description": "Classic 8-bit alarm"
+    },
+    {
+      "id": "chill",
+      "name": "Chill",
+      "file": "chill.mp3",
+      "description": "Relaxed ambient tone"
+    },
+    {
+      "id": "loud",
+      "name": "Loud",
+      "file": "loud.mp3",
+      "description": "Maximum volume alert"
+    }
+  ],
+  "default": "default"
+}

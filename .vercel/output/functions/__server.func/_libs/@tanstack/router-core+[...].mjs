@@ -1285,6 +1285,7 @@ function deserializeTypedArray(ctx, depth, node) {
 	var _node$b;
 	const construct = getTypedArrayConstructor(node.c);
 	const source = deserialize$1(ctx, depth, node.f);
+	if (!(source instanceof ArrayBuffer)) throw new SerovalMalformedNodeError(node);
 	const offset = (_node$b = node.b) !== null && _node$b !== void 0 ? _node$b : 0;
 	if (offset < 0 || offset > source.byteLength || node.l > MAX_BASE64_LENGTH) throw new SerovalMalformedNodeError(node);
 	return assignIndexedValue$1(ctx, node.i, new construct(source, offset, node.l));
@@ -1292,6 +1293,7 @@ function deserializeTypedArray(ctx, depth, node) {
 function deserializeDataView(ctx, depth, node) {
 	var _node$b2;
 	const source = deserialize$1(ctx, depth, node.f);
+	if (!(source instanceof ArrayBuffer)) throw new SerovalMalformedNodeError(node);
 	const offset = (_node$b2 = node.b) !== null && _node$b2 !== void 0 ? _node$b2 : 0;
 	if (offset < 0 || offset > source.byteLength || node.l > MAX_BASE64_LENGTH) throw new SerovalMalformedNodeError(node);
 	return assignIndexedValue$1(ctx, node.i, new DataView(source, offset, node.l));
@@ -1352,11 +1354,15 @@ function deserializePromiseFulfill(ctx, depth, node) {
 }
 function deserializeIteratorFactoryInstance(ctx, depth, node) {
 	deserialize$1(ctx, depth, node.a[0]);
-	return sequenceToIterator(deserialize$1(ctx, depth, node.a[1]));
+	const source = deserialize$1(ctx, depth, node.a[1]);
+	if (!source || typeof source !== "object" || !isSequence(source)) throw new SerovalMalformedNodeError(node.a[1]);
+	return sequenceToIterator(source);
 }
 function deserializeAsyncIteratorFactoryInstance(ctx, depth, node) {
 	deserialize$1(ctx, depth, node.a[0]);
-	return streamToAsyncIterable(deserialize$1(ctx, depth, node.a[1]));
+	const source = deserialize$1(ctx, depth, node.a[1]);
+	if (!source || typeof source !== "object" || !isStream(source)) throw new SerovalMalformedNodeError(node.a[1]);
+	return streamToAsyncIterable(source);
 }
 function deserializeStreamConstructor(ctx, depth, node) {
 	const result = assignIndexedValue$1(ctx, node.i, createStream());
