@@ -14,6 +14,12 @@ export default defineConfig({
   },
   nitro: {
     preset: "vercel",
+    rollupConfig: {
+      external: [],
+      output: {
+        manualChunks: undefined,
+      },
+    },
     externals: {
       inline: ["tslib"],
     },
