@@ -23,5 +23,7 @@ export default defineConfig({
     externals: {
       inline: ["tslib"],
     },
+    // Ensure tslib is included in the bundle
+    inlineDependencies: ["tslib"],
   },
 });
