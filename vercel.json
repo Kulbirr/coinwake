@@ -1,7 +1,6 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": ".output/public",
-  "framework": "none",
   "rewrites": [
     {
       "source": "/(.*)",
