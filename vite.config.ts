@@ -17,9 +17,19 @@ export default defineConfig({
     externals: {
       inline: ["tslib"],
     },
-    // Force tslib into the main bundle
-    bundle: {
-      inlineDependencies: ["tslib"],
+    // Copy tslib to _libs after build so _libs can resolve it
+    hooks: {
+      "compiled": async ({ nitro }) => {
+        const fs = await import("fs");
+        const path = await import("path");
+        const outputDir = nitro.options.output.dir;
+        const tslibPath = path.join(outputDir, "functions", "__server.func", "node_modules", "tslib");
+        const libsPath = path.join(outputDir, "functions", "__server.func", "_libs", "tslib");
+        if (fs.existsSync(tslibPath) && !fs.existsSync(libsPath)) {
+          fs.cpSync(tslibPath, libsPath, { recursive: true });
+          console.log("Copied tslib to _libs");
+        }
+      },
     },
   },
 });
