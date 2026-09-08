@@ -14,32 +14,8 @@ export default defineConfig({
   },
   nitro: {
     preset: "vercel",
-    rollupConfig: {
-      external: [],
-      output: {
-        manualChunks: undefined,
-      },
-    },
     externals: {
       inline: ["tslib"],
     },
-    // Force tslib to be bundled with the server
-    serverDependencies: ["tslib"],
-    // Force tslib to be in the main bundle via esbuild
-    esbuild: {
-      options: {
-        banner: {
-          js: "import 'tslib';",
-        },
-      },
-    },
-    // Also add to dependencies to ensure it's in the bundle
-    dependencies: ["tslib"],
-    // Bundle all dependencies into the main bundle
-    bundle: {
-      inlineDependencies: ["*"],
-    },
-    // Force _libs to be inlined
-    inlineDynamicImports: true,
   },
 });
