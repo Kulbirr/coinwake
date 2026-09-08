@@ -2,5 +2,5 @@
   "buildCommand": "cd frontend && npm ci --ignore-scripts && npm run build",
   "outputDirectory": "frontend/.output/public",
   "framework": "vite",
-  "installCommand": "cd frontend && npm ci --ignore-scripts"
+  "installCommand": "cd frontend && npm ci --ignore-scripts --legacy-peer-deps"
 }
