@@ -8,8 +8,9 @@ services:
     runtime: node
     plan: free
     region: oregon
-    buildCommand: cd backend && npm ci && npm run build
-    startCommand: cd backend && npm run start
+    rootDir: backend/server
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
     healthCheckPath: /api/healthz
     envVars:
       - key: NODE_ENV
