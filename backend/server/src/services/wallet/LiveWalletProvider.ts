@@ -90,20 +90,30 @@ export class LiveWalletProvider implements WalletProvider {
   }
 
   async getBalances(chain: WalletChain, address: string): Promise<TokenBalance[]> {
-    return chain === "solana" ? this.solBalances(address) : this.evmBalances(address);
-  }
+      const start = process.hrtime.bigint();
+      const balances = await (chain === "solana" ? this.solBalances(address) : this.evmBalances(address));
+      const ms = Number(process.hrtime.bigint() - start) / 1_000_000;
+      log.info("wallet getBalances completed", { chain, address, count: balances.length, ms });
+      return balances;
+    }
 
   async getTransactions(
-    chain: WalletChain,
-    address: string,
-    limit = 10,
-  ): Promise<WalletTransaction[]> {
-    if (chain === "solana") return this.solTransactions(address, limit);
-    // Enumerating EVM transfers needs an indexer (Etherscan/Alchemy/Covalent);
-    // plain JSON-RPC cannot do it. Returning nothing is the honest answer — the
-    // portfolio then reports "Cost basis unavailable" rather than guessing.
-    return [];
-  }
+      chain: WalletChain,
+      address: string,
+      limit = 10,
+    ): Promise<WalletTransaction[]> {
+      const start = process.hrtime.bigint();
+      const transactions = chain === "solana"
+        ? await this.solTransactions(address, limit)
+        : await this.evmTransactions(address, limit);
+      const ms = Number(process.hrtime.bigint() - start) / 1_000_000;
+      log.info("wallet getTransactions completed", { chain, address, count: transactions.length, ms });
+      return transactions;
+    }
+
+    private async evmTransactions(address: string, _limit: number): Promise<WalletTransaction[]> {
+      return [];
+    }
 
   private async solBalances(address: string): Promise<TokenBalance[]> {
     const url = env.SOLANA_RPC_URL;

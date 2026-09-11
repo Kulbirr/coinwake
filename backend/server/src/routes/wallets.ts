@@ -137,8 +137,11 @@ router.delete(
 router.get(
   "/:id/balances",
   handler(async (req, res) => {
+    const start = process.hrtime.bigint();
     const wallet = await findWallet(String(req.params["id"]), currentUserId(req));
     const balances = await getWalletProvider().getBalances(wallet.chain, wallet.address);
+    const ms = Number(process.hrtime.bigint() - start) / 1_000_000;
+    log.info("wallet balances endpoint completed", { walletId: wallet.id, chain: wallet.chain, count: balances.length, ms });
     res.json({ walletId: wallet.id as string, balances });
   }),
 );
@@ -146,6 +149,7 @@ router.get(
 router.get(
   "/:id/transactions",
   handler(async (req, res) => {
+    const start = process.hrtime.bigint();
     const wallet = await findWallet(String(req.params["id"]), currentUserId(req));
     const limit = Math.min(50, Number(req.query["limit"] ?? 20) || 20);
 
@@ -154,6 +158,9 @@ router.get(
       wallet.address,
       limit,
     );
+
+    const ms = Number(process.hrtime.bigint() - start) / 1_000_000;
+    log.info("wallet transactions endpoint completed", { walletId: wallet.id, chain: wallet.chain, count: transactions.length, ms });
 
     res.json({
       walletId: wallet.id as string,
@@ -177,6 +184,7 @@ router.get(
 router.post(
   "/:id/sync",
   handler(async (req, res) => {
+    const start = process.hrtime.bigint();
     const userId = currentUserId(req);
     const wallet = await findWallet(String(req.params["id"]), userId);
 
@@ -226,6 +234,8 @@ router.post(
     await wallet.save();
 
     const skipped = balances.length - tracked.length;
+    const ms = Number(process.hrtime.bigint() - start) / 1_000_000;
+    log.info("wallet sync completed", { walletId: wallet.id, chain: wallet.chain, holdings: docs.length, skipped, ms });
 
     res.json({
       wallet: toWalletAccount(wallet),
